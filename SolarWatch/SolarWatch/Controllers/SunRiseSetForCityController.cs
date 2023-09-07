@@ -13,8 +13,7 @@ public class SunRiseSetForCityController : ControllerBase
     }
 
     [HttpGet(Name = "GetSunRiseSetForCity")]
-    public SunRiseSetForCity Get(string cityName)
-
+    public SunRiseSetForCity Get(string cityName, DateTime dateTime)
     {
         return new SunRiseSetForCity
         {
