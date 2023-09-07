@@ -3,9 +3,18 @@ using Newtonsoft.Json;
 
 namespace SolarWatch.Services;
 
-public class CityNameProcessor
+public class CityNameProcessor : ICityNameProcessor
 {
-    public (double, double) GetCoords(string cityName)
+    public float GetLanCoord(string cityName)
+    {
+        return GetCoords(cityName).Item1;
+    }
+    
+    public float GetLonCoord(string cityName)
+    {
+        return GetCoords(cityName).Item2;
+    }
+    public (float, float) GetCoords(string cityName)
     {
         
         var apiKey = "ec6e9277ce603085dd100a3df5d457fe";
@@ -33,8 +42,8 @@ public class CityNameProcessor
 
 public class Location
 {
-    public double lat { get; set; }
-    public double lon { get; set; }
+    public float lat { get; set; }
+    public float lon { get; set; }
     // Add other properties from the JSON response here
 }
 
