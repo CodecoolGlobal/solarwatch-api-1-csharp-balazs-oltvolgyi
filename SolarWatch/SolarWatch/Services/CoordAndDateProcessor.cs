@@ -25,7 +25,7 @@ public class CoordAndDateProcessor : ICoordAndDateProcessor
 
             if (responseJson is null) // inkább JSON-parse után checkolni a JSON-ban lévő response statust?
             {
-                throw new Exception("No response from sunrise/set server");
+                return (null, null);
             }
             
             JsonDocument json = JsonDocument.Parse(responseJson);
@@ -43,9 +43,9 @@ public class CoordAndDateProcessor : ICoordAndDateProcessor
         
     }
 
-    private class RiseAndSetTimes
-    {
-        public DateTime Sunrise { get; set; }
-        public DateTime Sunset { get; set; }
-    }
+    // private class RiseAndSetTimes
+    // {
+    //     public DateTime Sunrise { get; set; }
+    //     public DateTime Sunset { get; set; }
+    // }
 }

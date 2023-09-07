@@ -25,12 +25,24 @@ public class SunRiseSetForCityController : ControllerBase
         // getting coordinates based on city name
         var lat = _cityNameProcessor.GetLatCoord(cityName);
         var lon = _cityNameProcessor.GetLonCoord(cityName);
+
+        if (lat is 0)
+        {
+            _logger.LogError("Coordinates not found. Check city name!");
+            return null;
+        }
         
         _logger.LogInformation($"Data from _cityNameProcessor --- LAT:{lat}, LON:{lon}");
         
         // using coordinates to get times of sunrise/set
         var sunrise = _coordAndDateProcessor.GetSunriseTime(lat, lon, formattedDate);
         var sunset = _coordAndDateProcessor.GetSunsetTime(lat, lon, formattedDate);
+        
+        if (sunrise is null)
+        {
+            _logger.LogError("Sunrise and sunset times not found. Check Date value!");
+            return null;
+        }
         
         _logger.LogInformation($"Data from _coordAndDateProcessor --- RISE:{sunrise}, SET:{sunset}");
         

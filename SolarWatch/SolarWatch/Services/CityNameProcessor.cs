@@ -34,7 +34,7 @@ public class CityNameProcessor : ICityNameProcessor
             }
             else
             {
-                throw new InvalidOperationException($"No location found for {cityName}.");
+                return (0, 0);
             }
         }
     }
