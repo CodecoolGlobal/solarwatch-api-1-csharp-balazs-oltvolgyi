@@ -1,3 +1,5 @@
+using SolarWatch.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +8,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// registering interface(s) and their implementations in the DI container
+builder.Services.AddSingleton<ICityNameProcessor, CityNameProcessor>();
 
 var app = builder.Build();
 
