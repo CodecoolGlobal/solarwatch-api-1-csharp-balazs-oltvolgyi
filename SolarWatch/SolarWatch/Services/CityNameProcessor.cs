@@ -14,7 +14,7 @@ public class CityNameProcessor : ICityNameProcessor
     {
         return GetCoords(cityName).Item2;
     }
-    public (float, float) GetCoords(string cityName)
+    private (float, float) GetCoords(string cityName)
     {
         
         var apiKey = "ec6e9277ce603085dd100a3df5d457fe";
@@ -34,7 +34,7 @@ public class CityNameProcessor : ICityNameProcessor
             }
             else
             {
-                throw new InvalidOperationException("No location found for the given city.");
+                throw new InvalidOperationException($"No location found for {cityName}.");
             }
         }
     }
@@ -44,7 +44,6 @@ public class Location
 {
     public float lat { get; set; }
     public float lon { get; set; }
-    // Add other properties from the JSON response here
 }
 
 
