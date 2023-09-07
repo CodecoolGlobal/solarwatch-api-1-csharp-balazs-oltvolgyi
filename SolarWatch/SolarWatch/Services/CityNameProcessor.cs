@@ -5,7 +5,7 @@ namespace SolarWatch.Services;
 
 public class CityNameProcessor : ICityNameProcessor
 {
-    public float GetLanCoord(string cityName)
+    public float GetLatCoord(string cityName)
     {
         return GetCoords(cityName).Item1;
     }
@@ -34,7 +34,7 @@ public class CityNameProcessor : ICityNameProcessor
             }
             else
             {
-                throw new InvalidOperationException("No locations found for the given city.");
+                throw new InvalidOperationException("No location found for the given city.");
             }
         }
     }
