@@ -6,6 +6,6 @@ public class SunRiseSetForCity
 {
     public string CityName { get; set; }
     public DateTime Date { get; set; }
-    public DateTime SunSet { get; set; }
-    public DateTime SunRise { get; set; }
+    public string SunSet { get; set; }
+    public string SunRise { get; set; }
 }
