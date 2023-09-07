@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 
 // registering interface(s) and their implementations in the DI container
 builder.Services.AddSingleton<ICityNameProcessor, CityNameProcessor>();
+builder.Services.AddSingleton<ICoordAndDateProcessor, CoordAndDateProcessor>();
 
 var app = builder.Build();
 
