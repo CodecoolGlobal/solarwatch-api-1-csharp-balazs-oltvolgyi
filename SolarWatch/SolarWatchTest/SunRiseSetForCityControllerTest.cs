@@ -75,6 +75,7 @@ public class Tests
 
         var sunrise = "6:18:37 AM";
         var sunset = "2:56:42 PM";
+        
 
         _cityNameProcessor.Setup(x => x.GetLatCoord(cityName)).Returns(lat);
         _cityNameProcessor.Setup(x => x.GetLonCoord(cityName)).Returns(lon);
