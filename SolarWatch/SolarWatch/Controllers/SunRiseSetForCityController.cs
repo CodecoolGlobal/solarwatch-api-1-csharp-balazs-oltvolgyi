@@ -18,41 +18,49 @@ public class SunRiseSetForCityController : ControllerBase
     }
 
     [HttpGet(Name = "GetSunRiseSetForCity")]
-    public SunRiseSetForCity Get(string cityName, DateTime date)
+    public ActionResult<SunRiseSetForCity> Get(string cityName, DateTime date)
     {
         string formattedDate = date.ToString("yyyy'-'M'-'d");
-        
-        // getting coordinates based on city name
-        var lat = _cityNameProcessor.GetLatCoord(cityName);
-        var lon = _cityNameProcessor.GetLonCoord(cityName);
 
-        if (lat is 0)
+        try
         {
-            _logger.LogError("Coordinates not found. Check city name!");
-            return null;
-        }
-        
-        _logger.LogInformation($"Data from _cityNameProcessor --- LAT:{lat}, LON:{lon}");
-        
-        // using coordinates to get times of sunrise/set
-        var sunrise = _coordAndDateProcessor.GetSunriseTime(lat, lon, formattedDate);
-        var sunset = _coordAndDateProcessor.GetSunsetTime(lat, lon, formattedDate);
-        
-        if (sunrise is null)
-        {
-            _logger.LogError("Sunrise and sunset times not found. Check Date value!");
-            return null;
-        }
-        
-        _logger.LogInformation($"Data from _coordAndDateProcessor --- RISE:{sunrise}, SET:{sunset}");
-        
-        return new SunRiseSetForCity
-        {
-            CityName = cityName,
-            Date = date,
-            SunRise = sunrise,
-            SunSet = sunset,
-        };
+            // getting coordinates based on city name
+            var lat = _cityNameProcessor.GetLatCoord(cityName);
+            var lon = _cityNameProcessor.GetLonCoord(cityName);
+            _logger.LogInformation($"Data from _cityNameProcessor CITY:{cityName} --- LAT:{lat}, LON:{lon}");
+            
+            if(lat==0) 
+            {
+                _logger.LogError($"Error getting coordinates for city {cityName}");
+                return StatusCode(500, $"Error getting coordinates for city {cityName}");
+            }
+            
+            try
+            {
+                // using coordinates to get times of sunrise/set
+                var sunrise = _coordAndDateProcessor.GetSunriseTime(lat, lon, formattedDate);
+                var sunset = _coordAndDateProcessor.GetSunsetTime(lat, lon, formattedDate);
+                _logger.LogInformation($"Data from _coordAndDateProcessor --- RISE:{sunrise}, SET:{sunset}");
 
+                return Ok(new SunRiseSetForCity
+                {
+                    CityName = cityName,
+                    Date = date,
+                    SunRise = sunrise,
+                    SunSet = sunset,
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error getting sunrise and sunset times for city {cityName} at date {formattedDate}");
+                return StatusCode(500, $"Error getting sunrise and sunset times for city {cityName} at date {formattedDate}");
+
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Error getting coordinates for city {cityName}");
+            return StatusCode(500, $"Error getting coordinates for city {cityName}");
+        }
     }
 }
