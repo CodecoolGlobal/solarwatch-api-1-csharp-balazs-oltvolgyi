@@ -77,11 +77,11 @@ public class Tests
         var sunset = "2:56:42 PM";
         
 
-        _cityNameProcessor.Setup(x => x.GetLatCoord(cityName)).Returns(lat);
-        _cityNameProcessor.Setup(x => x.GetLonCoord(cityName)).Returns(lon);
+        _cityNameProcessor.Setup(x => x.GetLatCoord(cityName)).ReturnsAsync(lat);
+        _cityNameProcessor.Setup(x => x.GetLonCoord(cityName)).ReturnsAsync(lon);
 
-        _coordAndDateProcessor.Setup(x => x.GetSunriseTime(lat, lon, date.ToString("yyyy'-'M'-'d"))).Returns(sunrise);
-        _coordAndDateProcessor.Setup(x => x.GetSunsetTime(lat, lon, date.ToString("yyyy'-'M'-'d"))).Returns(sunset);
+        _coordAndDateProcessor.Setup(x => x.GetSunriseTime(lat, lon, date.ToString("yyyy'-'M'-'d"))).ReturnsAsync(sunrise);
+        _coordAndDateProcessor.Setup(x => x.GetSunsetTime(lat, lon, date.ToString("yyyy'-'M'-'d"))).ReturnsAsync(sunset);
 
         // Act
         var result = _controller.Get(cityName, date);

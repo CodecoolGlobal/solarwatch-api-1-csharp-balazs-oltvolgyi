@@ -18,15 +18,15 @@ public class SunRiseSetForCityController : ControllerBase
     }
 
     [HttpGet(Name = "GetSunRiseSetForCity")]
-    public ActionResult<SunRiseSetForCity> Get(string cityName, DateTime date)
+    public async Task<ActionResult<SunRiseSetForCity>> Get(string cityName, DateTime date)
     {
         string formattedDate = date.ToString("yyyy'-'M'-'d");
 
         try
         {
             // getting coordinates based on city name
-            var lat = _cityNameProcessor.GetLatCoord(cityName);
-            var lon = _cityNameProcessor.GetLonCoord(cityName);
+            var lat = await _cityNameProcessor.GetLatCoord(cityName);
+            var lon = await _cityNameProcessor.GetLonCoord(cityName);
             _logger.LogInformation($"Data from _cityNameProcessor CITY:{cityName} --- LAT:{lat}, LON:{lon}");
             
             if(lat==0) 
@@ -38,8 +38,8 @@ public class SunRiseSetForCityController : ControllerBase
             try
             {
                 // using coordinates to get times of sunrise/set
-                var sunrise = _coordAndDateProcessor.GetSunriseTime(lat, lon, formattedDate);
-                var sunset = _coordAndDateProcessor.GetSunsetTime(lat, lon, formattedDate);
+                var sunrise = await _coordAndDateProcessor.GetSunriseTime(lat, lon, formattedDate);
+                var sunset = await _coordAndDateProcessor.GetSunsetTime(lat, lon, formattedDate);
                 _logger.LogInformation($"Data from _coordAndDateProcessor --- RISE:{sunrise}, SET:{sunset}");
 
                 return Ok(new SunRiseSetForCity

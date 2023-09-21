@@ -5,23 +5,25 @@ using Newtonsoft.Json;
 namespace SolarWatch.Services;
 
 public class CoordAndDateProcessor : ICoordAndDateProcessor
-{
-    public string GetSunriseTime(float lat, float lon, string date)
+{ 
+    public async Task<string> GetSunriseTime(float lat, float lon, string date)
     {
-        return GetSunRiseSetTime(lat, lon, date).Item1;
+        var (sunrise, _) = await GetSunRiseSetTime(lat, lon, date);
+        return sunrise;
     }
     
-    public string GetSunsetTime(float lat, float lon, string date)
+    public async Task<string> GetSunsetTime(float lat, float lon, string date)
     {
-        return GetSunRiseSetTime(lat, lon, date).Item2;
+        var (_, sunset) = await GetSunRiseSetTime(lat, lon, date);
+        return sunset;
     }
 
-    private (string, string) GetSunRiseSetTime(float lat, float lon, string date)
+    private async Task<(string, string)> GetSunRiseSetTime(float lat, float lon, string date)
     {
         var url = $"https://api.sunrise-sunset.org/json?lat={lat}&lng={lon}&date={date}";
-        using (var client = new WebClient())
+        using (var client = new HttpClient())
         {
-            var responseJson = client.DownloadString(url);
+            var responseJson = await client.GetStringAsync(url);
 
             if (responseJson is null) // inkább JSON-parse után checkolni a JSON-ban lévő response statust?
             {
