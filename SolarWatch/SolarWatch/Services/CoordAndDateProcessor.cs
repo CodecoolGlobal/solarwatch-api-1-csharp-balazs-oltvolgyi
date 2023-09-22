@@ -31,23 +31,15 @@ public class CoordAndDateProcessor : ICoordAndDateProcessor
             }
             
             JsonDocument json = JsonDocument.Parse(responseJson);
-
-
             JsonElement results = json.RootElement.GetProperty("results");
 
             string sunrise = results.GetProperty("sunrise").GetString();
             string sunset = results.GetProperty("sunset").GetString();
-
             
-           return (sunrise, sunset);
+            return (sunrise, sunset);
         }
 
         
     }
 
-    // private class RiseAndSetTimes
-    // {
-    //     public DateTime Sunrise { get; set; }
-    //     public DateTime Sunset { get; set; }
-    // }
 }
