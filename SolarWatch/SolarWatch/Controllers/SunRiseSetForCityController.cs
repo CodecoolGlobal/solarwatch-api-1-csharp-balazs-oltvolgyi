@@ -59,7 +59,7 @@ public class SunRiseSetForCityController : ControllerBase
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error getting sunrise and sunset times for city {cityName} at date {formattedDate}");
-                return StatusCode(500, $"Error getting sunrise and sunset times for city {cityName} at date {formattedDate}");
+                return NotFound($"Error getting sunrise and sunset times for city {cityName} at date {formattedDate}");
 
             }
         }
