@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
 using SolarWatch.Services;
 
 namespace SolarWatch.Controllers;
@@ -38,9 +39,14 @@ public class SunRiseSetForCityController : ControllerBase
             try
             {
                 // using coordinates to get times of sunrise/set
-                var sunrise = await _coordAndDateProcessor.GetSunriseTime(lat, lon, formattedDate);
-                var sunset = await _coordAndDateProcessor.GetSunsetTime(lat, lon, formattedDate);
-                _logger.LogInformation($"Data from _coordAndDateProcessor --- RISE:{sunrise}, SET:{sunset}");
+                var sunriseTime = await _coordAndDateProcessor.GetSunriseTime(lat, lon, formattedDate);
+                var sunsetTime = await _coordAndDateProcessor.GetSunsetTime(lat, lon, formattedDate);
+                _logger.LogInformation($"Data from _coordAndDateProcessor --- RISE:{sunriseTime}, SET:{sunsetTime}");
+                
+                // parsing to datetime format
+                string timeFormat = "h:mm:ss tt";
+                DateTime sunrise = DateTime.ParseExact(sunriseTime, timeFormat, CultureInfo.InvariantCulture);
+                DateTime sunset = DateTime.ParseExact(sunsetTime, timeFormat, CultureInfo.InvariantCulture);
 
                 return Ok(new SunRiseSetForCity
                 {
