@@ -5,18 +5,31 @@ namespace SolarWatch.Services;
 
 public class CityNameProcessor : ICityNameProcessor
 {
-    public async Task<float> GetLatCoord(string cityName)
+    public async Task<double> GetLatCoord(string cityName)
     {
-        var (lat, _) = await GetCoords(cityName);
+        var (lat, _, _, _) = await GetInfo(cityName);
         return lat;
     }
 
-    public async Task<float> GetLonCoord(string cityName)
+    public async Task<double> GetLonCoord(string cityName)
     {
-        var (_, lon) = await GetCoords(cityName);
+        var (_, lon, _, _) = await GetInfo(cityName);
         return lon;
     }
-    private async Task<(float, float)> GetCoords(string cityName)
+    
+    public async Task<string> GetState(string cityName)
+    {
+        var (_, _, state, _) = await GetInfo(cityName);
+        return state;
+    }
+    
+    public async Task<string> GetCountry(string cityName)
+    {
+        var (_, _, _, country) = await GetInfo(cityName);
+        return country;
+    }
+    
+    private async Task<(double, double, string?, string?)> GetInfo(string cityName)
     {
         
         var apiKey = "ec6e9277ce603085dd100a3df5d457fe";
@@ -32,11 +45,16 @@ public class CityNameProcessor : ICityNameProcessor
             {
                 var lat = locations[0].lat;
                 var lon = locations[0].lon;
-                return (lat, lon);
+                var state = locations[0].state;
+                var country = locations[0].country;
+
+                Console.WriteLine($"FROM CityNameProcessor: LAT:{lat}");
+                
+                return (lat, lon, state, country);
             }
             else
             {
-                return (0, 0);
+                return (0, 0, null, null);
             }
         }
     }
@@ -44,8 +62,10 @@ public class CityNameProcessor : ICityNameProcessor
 
 public class Location
 {
-    public float lat { get; set; }
-    public float lon { get; set; }
+    public double lat { get; set; }
+    public double lon { get; set; }
+    public string? state { get; set; }
+    public string country { get; set; }
 }
 
 
