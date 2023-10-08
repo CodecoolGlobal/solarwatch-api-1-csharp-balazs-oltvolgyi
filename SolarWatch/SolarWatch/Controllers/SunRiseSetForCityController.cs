@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SolarWatch.Model;
 using SolarWatch.Services;
@@ -27,7 +28,7 @@ public class SunRiseSetForCityController : ControllerBase
         _sunTimesRepository = sunTimesRepository;
     }
 
-    [HttpGet(Name = "GetSunRiseSetForCity")]
+    [HttpGet(Name = "GetSunRiseSetForCity"), Authorize]
     public async Task<ActionResult<SunRiseSetForCity>> Get(string cityName, DateTime date)
     {
         string formattedDate = date.ToString("yyyy'-'M'-'d");
@@ -128,6 +129,8 @@ public class SunRiseSetForCityController : ControllerBase
         });
 
     }
+    
+    
 
     private async Task<(DateTime, DateTime)> GetRiseAndSetWithDateType(double lat, double lon, string formattedDate)
     {

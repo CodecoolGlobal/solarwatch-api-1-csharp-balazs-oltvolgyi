@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SolarWatch.Controllers;
@@ -18,7 +19,7 @@ public class WeatherForecastController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
+    [HttpGet(Name = "GetWeatherForecast"), Authorize]
     public async Task<IEnumerable<WeatherForecast>> GetAsync()
     {
         _logger.LogInformation("Long running process started");
