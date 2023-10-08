@@ -148,4 +148,91 @@ public class SunRiseSetForCityController : ControllerBase
         return (sunrise, sunset);
     }
 
+    
+    // CRUD endpoints for Cities and SunTimes
+    [HttpPost, Authorize(Roles="Admin")]
+    public ActionResult<City> CreateCity(City city)
+    {
+        _cityRepository.Add(city);
+        return CreatedAtAction(nameof(GetCity), new { id = city.Id }, city);
+    }
+
+    [HttpPost("/sunpost"), Authorize(Roles="Admin")]
+    public ActionResult<SunTimes> CreateSunTimes(SunTimes sunTimes)
+    {
+        _sunTimesRepository.Add(sunTimes);
+        return CreatedAtAction(nameof(GetSunTimes), new { id = sunTimes.Id }, sunTimes);
+    }
+    
+    [HttpGet("{id}"), Authorize(Roles="User, Admin")]
+    public ActionResult<City> GetCity(string name)
+    {
+        var city = _cityRepository.GetByName(name);
+        if (city == null)
+        {
+            return NotFound();
+        }
+        return city;
+    }
+
+    [HttpGet("{cityName}/{date}"), Authorize(Roles="User, Admin")]
+    public ActionResult<SunTimes> GetSunTimes(string cityName, DateTime date)
+    {
+        var sunTimes = _sunTimesRepository.GetByDateAndName(cityName, date);
+        if (sunTimes == null)
+        {
+            return NotFound();
+        }
+        return sunTimes;
+    }
+    
+    [HttpPut("{id}"), Authorize(Roles="Admin")]
+    public IActionResult UpdateCity(int id, City city)
+    {
+        if (id != city.Id)
+        {
+            return BadRequest();
+        }
+        _cityRepository.Update(city);
+
+        return NoContent();
+    }
+
+    [HttpPut("{cityName}/{date}"), Authorize(Roles="Admin")]
+    public IActionResult UpdateSunTimes(string cityName, DateTime date, SunTimes sunTimes)
+    {
+        if (cityName != sunTimes.CityName || date != sunTimes.Date)
+        {
+            return BadRequest();
+        }
+        _sunTimesRepository.Update(sunTimes);
+
+        return NoContent();
+    }
+    
+    [HttpDelete("{id}"), Authorize(Roles="Admin")]
+    public IActionResult DeleteCity(string name)
+    {
+        var city = _cityRepository.GetByName(name);
+        if (city == null)
+        {
+            return NotFound();
+        }
+        _cityRepository.Delete(city);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{cityName}/{date}"), Authorize(Roles="Admin")]
+    public IActionResult DeleteSunTimes(string cityName, DateTime date)
+    {
+        var sunTimes = _sunTimesRepository.GetByDateAndName(cityName, date);
+        if (sunTimes == null)
+        {
+            return NotFound();
+        }
+        _sunTimesRepository.Delete(sunTimes);
+        
+        return NoContent();
+    }
 }
