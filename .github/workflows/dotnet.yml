@@ -4,18 +4,21 @@
 name: .NET
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "development" ]
   pull_request:
     branches: [ "development" ]
-    workflow_dispatch:
-  branches:
-    [ "development" ] 
+
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
+
+defaults: 
+      run:
+        working-directory: ./SolarWatch4
 
     steps:
     - uses: actions/checkout@v3
