@@ -5,6 +5,16 @@ namespace SolarWatch.Services;
 
 public class CityNameProcessor : ICityNameProcessor
 {
+    public async Task<(double, double)> GetCoords(string cityName)
+    {
+        var lat = await GetLatCoord(cityName);
+        var lon = await GetLonCoord(cityName);
+        
+        // if (lat == 0 || lon == 0) {return ERROR MESSAGE;} else {return (lat, lon);}
+        
+        return (lat, lon);
+    }
+
     public async Task<double> GetLatCoord(string cityName)
     {
         var (lat, _, _, _) = await GetInfo(cityName);
