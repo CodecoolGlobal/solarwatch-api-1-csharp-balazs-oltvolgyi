@@ -31,23 +31,23 @@ public class SunRiseSetForCityController : ControllerBase
     [HttpGet(Name = "GetSunRiseSetForCity"), Authorize]
     public async Task<ActionResult<SunRiseSetForCity>> Get(string cityName, DateTime date)
     {
+        // format date, create lat and lon variables
         string formattedDate = date.ToString("yyyy'-'M'-'d");
         double lat = 0;
         double lon = 0;
         
         var city = _cityRepository.GetByName(cityName);
-
         if (city == null)
         {
             _logger.LogInformation("City not yet present in DB, looking up info in API");
 
-            try
+            try     // FROM API: getting coordinates based on city name
             {
-                // FROM API: getting coordinates based on city name
-                lat = await _cityNameProcessor.GetLatCoord(cityName);
-                lon = await _cityNameProcessor.GetLonCoord(cityName);
+                (lat, lon) = await _cityNameProcessor.GetCoords(cityName);
+                // lat = await _cityNameProcessor.GetLatCoord(cityName);
+                // lon = await _cityNameProcessor.GetLonCoord(cityName);
 
-                if (lat == 0)
+                if (lat == 0) // másik oldali error handlinggel kezelni
                 {
                     _logger.LogError($"Error getting coordinates for city {cityName}");
                     return StatusCode(500, $"Error getting coordinates for city {cityName}");
@@ -56,10 +56,7 @@ public class SunRiseSetForCityController : ControllerBase
                 var state = await _cityNameProcessor.GetState(cityName);
                 var country = await _cityNameProcessor.GetCountry(cityName);
 
-                _logger.LogInformation
-                    ($"Data from _cityNameProcessor CITY:{cityName} --- LAT:{lat}, LON:{lon}, STATE:{state}, COUNTRY:{country}");
-
-                // SAVING CITY data to DB
+               // SAVING CITY data to DB
                 _cityRepository.Add(new City()
                 {
                     Name = cityName,
@@ -67,25 +64,14 @@ public class SunRiseSetForCityController : ControllerBase
                     State = state,
                     Latitude = lat,
                     Longitude = lon,
-
                 });
-                _logger.LogInformation($"NEW INFO ADDED TO DB --- city:{cityName}, lat:{lat}, lon:{lon}, state:{state}, country:{country}");
-
-                // GETTING SUNTIMES from API
-                try
+                _logger.LogInformation($"NEW CITY ADDED TO DB: {cityName}");
+                
+                
+                try     // Getting SunTimes from API and saving them to DB
                 {
                     var (sunrise, sunset) = await GetRiseAndSetWithDateType(lat, lon, formattedDate);
-                    
-                    // SAVING SUNTIMES data to DB
-                    _sunTimesRepository.Add(new SunTimes()
-                    {
-                        CityName = cityName,
-                        Date = date,
-                        SunRise = sunrise,
-                        SunSet = sunset
-                    });
-                    _logger.LogInformation($"NEW INFO ADDED TO DB --- city:{cityName}, date:{date}, rise:{sunrise}, set:{sunset}");
-
+                    SaveCityToDBWithSunTimes(cityName, date, sunrise, sunset);
                 }
                 catch (Exception e)
                 {
@@ -128,10 +114,23 @@ public class SunRiseSetForCityController : ControllerBase
             SunSet = _sunTimesRepository.GetByDateAndName(cityName,date).SunSet,
         });
 
+
+
     }
     
-    
+    // methods for "Get"
+    private void SaveCityToDBWithSunTimes(string cityName, DateTime date, DateTime sunrise, DateTime sunset)
+    {
+        _sunTimesRepository.Add(new SunTimes()
+        {
+            CityName = cityName,
+            Date = date,
+            SunRise = sunrise,
+            SunSet = sunset
+        });
+        _logger.LogInformation($"NEW INFO ADDED TO DB --- city:{cityName}, date:{date}, rise:{sunrise}, set:{sunset}");
 
+    }
     private async Task<(DateTime, DateTime)> GetRiseAndSetWithDateType(double lat, double lon, string formattedDate)
     {
         var sunriseTime = await _coordAndDateProcessor.GetSunriseTime(lat, lon, formattedDate);
