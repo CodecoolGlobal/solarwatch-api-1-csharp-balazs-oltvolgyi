@@ -8,8 +8,10 @@
   </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="IntegrationTest" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.12" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.10" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
           <PrivateAssets>all</PrivateAssets>
