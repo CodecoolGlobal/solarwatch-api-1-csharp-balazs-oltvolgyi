@@ -42,7 +42,23 @@ public class CityNameProcessor : ICityNameProcessor
     private async Task<(double, double, string?, string?)> GetInfo(string cityName)
     {
         
-        var apiKey = "ec6e9277ce603085dd100a3df5d457fe";
+        // Building configuration from appsettings.json
+        IConfiguration config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .Build();
+
+        // Getting the API key
+        string apiKey = config["ApiSettings:ApiKey"];
+
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            Console.WriteLine("API key not found in configuration.");
+        }
+        else
+        {
+            Console.WriteLine($"API key found: {apiKey}");
+        }
+        
         var url = $"http://api.openweathermap.org/geo/1.0/direct?q={cityName}&limit=1&appid={apiKey}";
         using (var client = new HttpClient())
         {
