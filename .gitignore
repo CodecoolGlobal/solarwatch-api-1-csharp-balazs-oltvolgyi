@@ -4,6 +4,10 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 .DS_Store
 CHECKLIST.md
+
+# appsetting.json (contains API key)
+appsettings.json
+
 # User-specific files
 *.suo
 *.user
