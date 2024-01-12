@@ -25,7 +25,7 @@ public class CoordAndDateProcessor : ICoordAndDateProcessor
         {
             var responseJson = await client.GetStringAsync(url);
 
-            if (responseJson is null) // inkább JSON-parse után checkolni a JSON-ban lévő response statust?
+            if (responseJson is null)
             {
                 return (null, null);
             }
