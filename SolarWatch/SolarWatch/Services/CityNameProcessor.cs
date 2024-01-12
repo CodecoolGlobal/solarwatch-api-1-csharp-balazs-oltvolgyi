@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Runtime.InteropServices.JavaScript;
 using Newtonsoft.Json;
 
 namespace SolarWatch.Services;
@@ -9,8 +10,6 @@ public class CityNameProcessor : ICityNameProcessor
     {
         var lat = await GetLatCoord(cityName);
         var lon = await GetLonCoord(cityName);
-        
-        // if (lat == 0 || lon == 0) {return ERROR MESSAGE;} else {return (lat, lon);}
         
         return (lat, lon);
     }
@@ -48,41 +47,30 @@ public class CityNameProcessor : ICityNameProcessor
             .Build();
 
         // Getting the API key
-        string apiKey = config["ApiSettings:ApiKey"];
+        string? apiKey = config["ApiSettings:ApiKey"];
+        Console.WriteLine(string.IsNullOrEmpty(apiKey)
+            ? "API key not found in configuration."
+            : $"API key found: {apiKey}");
 
-        if (string.IsNullOrEmpty(apiKey))
-        {
-            Console.WriteLine("API key not found in configuration.");
-        }
-        else
-        {
-            Console.WriteLine($"API key found: {apiKey}");
-        }
-        
+        // Getting info from API with newly created URL and client
         var url = $"http://api.openweathermap.org/geo/1.0/direct?q={cityName}&limit=1&appid={apiKey}";
-        using (var client = new HttpClient())
+        using var client = new HttpClient();
+        var responseJson = await client.GetStringAsync(url);
+
+        // Deserializing JSON response
+        var locations = JsonConvert.DeserializeObject<Location[]>(responseJson);
+
+        if (locations is { Length: > 0 })
         {
-            var responseJson = await client.GetStringAsync(url);
-
-            // Deserialize the JSON response into an array of objects
-            var locations = JsonConvert.DeserializeObject<Location[]>(responseJson);
-
-            if (locations.Length > 0)
-            {
-                var lat = locations[0].lat;
-                var lon = locations[0].lon;
-                var state = locations[0].state;
-                var country = locations[0].country;
-
-                Console.WriteLine($"FROM CityNameProcessor: LAT:{lat}");
+            var lat = locations[0].lat;
+            var lon = locations[0].lon;
+            var state = locations[0].state;
+            var country = locations[0].country;
                 
-                return (lat, lon, state, country);
-            }
-            else
-            {
-                return (0, 0, null, null);
-            }
+            return (lat, lon, state, country);
         }
+
+        return (0, 0, null, null);
     }
 }
 
