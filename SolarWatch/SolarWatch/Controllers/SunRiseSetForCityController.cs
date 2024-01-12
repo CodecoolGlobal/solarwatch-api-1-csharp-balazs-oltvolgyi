@@ -36,42 +36,29 @@ public class SunRiseSetForCityController : ControllerBase
         double lat = 0;
         double lon = 0;
         
-        var city = _cityRepository.GetByName(cityName);
-        if (city == null)
+       if (_cityRepository.GetByName(cityName) == null)
         {
             _logger.LogInformation("City not yet present in DB, looking up info in API");
 
-            try     // FROM API: getting coordinates based on city name
+            try     
             {
+                // GETTING INFO based on city name
                 (lat, lon) = await _cityNameProcessor.GetCoords(cityName);
-                // lat = await _cityNameProcessor.GetLatCoord(cityName);
-                // lon = await _cityNameProcessor.GetLonCoord(cityName);
-
-                if (lat == 0) // másik oldali error handlinggel kezelni
+                var state = await _cityNameProcessor.GetState(cityName);
+                var country = await _cityNameProcessor.GetCountry(cityName);
+                
+                if (lat == 0)
                 {
                     _logger.LogError($"Error getting coordinates for city {cityName}");
                     return StatusCode(500, $"Error getting coordinates for city {cityName}");
                 }
-
-                var state = await _cityNameProcessor.GetState(cityName);
-                var country = await _cityNameProcessor.GetCountry(cityName);
-
-               // SAVING CITY data to DB
-                _cityRepository.Add(new City()
-                {
-                    Name = cityName,
-                    Country = country,
-                    State = state,
-                    Latitude = lat,
-                    Longitude = lon,
-                });
-                _logger.LogInformation($"NEW CITY ADDED TO DB: {cityName}");
                 
+                SaveCityToDB(cityName, country, state, lat, lon);
                 
                 try     // Getting SunTimes from API and saving them to DB
                 {
                     var (sunrise, sunset) = await GetRiseAndSetWithDateType(lat, lon, formattedDate);
-                    SaveCityToDBWithSunTimes(cityName, date, sunrise, sunset);
+                    SaveSunTimesToDB(cityName, date, sunrise, sunset);
                 }
                 catch (Exception e)
                 {
@@ -80,7 +67,6 @@ public class SunRiseSetForCityController : ControllerBase
                     return NotFound(
                         $"Error getting sunrise and sunset times for city {cityName} at date {formattedDate}");
                 }
-
             }
 
             catch (Exception e)
@@ -89,22 +75,14 @@ public class SunRiseSetForCityController : ControllerBase
                 return StatusCode(500, $"Error getting coordinates for city {cityName}");
             }
         }
-
-        var SunTimesForDate = _sunTimesRepository.GetByDateAndName(cityName, date);
-        if (SunTimesForDate == null)
+        
+        // GETTING and SAVING RISE/SET info (if it's not already present in DB)
+        if (_sunTimesRepository.GetByDateAndName(cityName, date) == null)
         {
             var (sunrise, sunset) = await GetRiseAndSetWithDateType(lat, lon, formattedDate);
-            
-            // SAVING SUNTIMES data to DB
-            _sunTimesRepository.Add(new SunTimes()
-            {
-                CityName = cityName,
-                Date = date,
-                SunRise = sunrise,
-                SunSet = sunset
-            });
-            _logger.LogInformation($"NEW INFO ADDED TO DB --- city:{cityName}, date:{date}, rise:{sunrise}, set:{sunset}");
+            SaveSunTimesToDB(cityName, date, sunrise, sunset);
         }
+        
         
         return Ok(new SunRiseSetForCity
         {
@@ -117,9 +95,20 @@ public class SunRiseSetForCityController : ControllerBase
 
 
     }
-    
-    // methods for "Get"
-    private void SaveCityToDBWithSunTimes(string cityName, DateTime date, DateTime sunrise, DateTime sunset)
+
+    private void SaveCityToDB(string cityName, string country, string state, double lat, double lon)
+    {
+        _cityRepository.Add(new City()
+        {
+            Name = cityName,
+            Country = country,
+            State = state,
+            Latitude = lat,
+            Longitude = lon,
+        });
+        _logger.LogInformation($"NEW CITY ADDED TO DB: {cityName}");
+    }
+    private void SaveSunTimesToDB(string cityName, DateTime date, DateTime sunrise, DateTime sunset)
     {
         _sunTimesRepository.Add(new SunTimes()
         {
